@@ -1,0 +1,145 @@
+CREATE TABLE user(
+id INTEGER PRIMARY KEY,
+full_name TEXT,
+email TEXT
+);
+
+CREATE TABLE post(
+id INTEGER PRIMARY KEY,
+title, TEXT,
+body TEXT,
+user_id INTEGER NOT NULL,
+FOREIGN KEY(user_id) REFERENCES user(id)
+);
+
+CREATE TABLE comment(
+id INTEGER PRIMARY KEY,
+body TEXT,
+post_id INTEGER NOT NULL,
+user_id INTEGER NOT NULL,
+FOREIGN KEY(post_id) REFERENCES post(id),
+FOREIGN KEY(user_id) REFERENCES user(id)
+);
+
+INSERT INTO user (full_name, email)
+VALUES
+('user one', '1@1.com'),
+('user two', '2@2.com'),
+('user three', '3@3.com'),
+('user five', '5@5.com'),
+('user six', '6@6.com'),
+('user seven', '6@6.com');
+
+
+INSERT INTO post (title, body, user_id)
+VALUES
+('1st post', 'first bla bla bla', 1),
+('2nd post', 'second bla bla bla', 2),
+('3rd post', 'third bla bla bla', 3),
+('4th post', 'fourth bla bla bla', 4);
+
+INSERT INTO comment (body, post_id, user_id)
+VALUES
+('first bla bla bla', 1, 2),
+('second bla bla bla', 2, 3),
+('third bla bla bla', 3, 4),
+('fourth bla bla bla', 4, 1),
+('fifth bla bla bla', 4, 2),
+('sixth bla bla bla', 4, 3),
+('seventh bla bla bla', 1, 3);
+
+*remove duplicates in a query response
+
+  SELECT DISTINCT user_id FROM comment;
+
+  Comment.selct(:user_id).distinct
+
+
+*filter records using inequalities
+
+  SELECT * FROM post
+  WHERE id != 2;
+
+  Post.where(["id != :id, {id: 2}])
+  
+
+*filter records using pattern matching
+
+  SELECT body FROM post
+  WHERE body LIKE '%nd%';
+
+  exp = "nd"
+  Post.where("post.body LIKE :p_body", {:p_body => "%#{exp}%"})
+  
+
+*filter records using ranges
+
+  SELECT * FROM comment
+  WHERE user_id BETWEEN 2 AND 3;
+
+  Comment.where(user_id: 2..3)
+
+
+*filter records using boolean logic
+
+  SELECT * FROM comment
+  WHERE id > 2 AND user_id < 2;
+
+  Comment.where("id > ? AND user_id < ?", 2, 2)
+
+
+*sort records in a particular order
+
+  SELECT * FROM post
+  ORDER BY title DESC;
+
+  Post.order(title: :desc)
+
+
+*limit the number of records returned
+
+  SELECT * FROM post
+  LIMIT 2;
+
+  Post.limit(2)
+
+
+*group records into sections
+
+  SELECT * FROM comment
+  GROUP BY post_id;
+
+  Comment.group(:post_id)
+
+
+*perform calculations using aggregate functions
+
+  SELECT COUNT(post_id)
+  FROM comment
+  GROUP BY post_id;
+
+  Comment.group(:post_id).count
+
+
+*join tables using cross join
+
+  SELECT * FROM user
+  CROSS JOIN post;
+
+  User.from(:user, :post) - sequel gem
+
+
+*join tables using inner join
+
+  SELECT * FROM user
+  INNER JOIN post ON user.id = post.user_id;
+
+  User.joins(:post)
+
+
+*join tables using outer join
+
+  SELECT * FROM user
+  LEFT OUTER JOIN post ON user.id = post.user_id;
+
+  User.left_outer_joins(:post).distinct.select
